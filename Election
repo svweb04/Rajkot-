@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8" />
+  <title>મારું પોસ્ટર બનાવો</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    canvas { border: 1px solid #ccc; max-width: 100%; }
+    input { margin: 10px; padding: 8px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h2>તમારું નામ અને ફોટો ઉમેરો</h2>
+  <input type="text" id="nameInput" placeholder="તમારું નામ લખો" />
+  <br/>
+  <input type="file" id="photoInput" accept="image/*" />
+  <br/>
+  <button onclick="generatePoster()">પોસ્ટર બનાવો</button>
+  <br/><br/>
+  <canvas id="posterCanvas" width="1080" height="1650"></canvas>
+  <br/>
+  <a id="downloadLink" style="display:none;" download="my-poster.png">ડાઉનલોડ કરો</a>
+
+  <script>
+    const canvas = document.getElementById("posterCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const baseImage = new Image();
+    baseImage.src = "poster.jpg"; // તમારું પોસ્ટર ફાઇલ અહીં હોવી જોઈએ
+
+    function generatePoster() {
+      const name = document.getElementById("nameInput").value;
+      const photoFile = document.getElementById("photoInput").files[0];
+
+      baseImage.onload = () => {
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+        if (photoFile) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const photoImg = new Image();
+            photoImg.onload = function() {
+              // ફોટો: જમણી બાજુ ઉપર
+              ctx.drawImage(photoImg, 740, 980, 300, 300);
+
+              drawText(name); // ફોટો પછી ટેક્સ્ટ
+            };
+            photoImg.src = e.target.result;
+          };
+          reader.readAsDataURL(photoFile);
+        } else {
+          drawText(name);
+        }
+      };
+
+      if (baseImage.complete) {
+        baseImage.onload(); // Reload if already loaded
+      }
+    }
+
+    function drawText(name) {
+      ctx.font = "bold 42px sans-serif";
+      ctx.fillStyle = "black";
+      ctx.textAlign = "right";
+      // નામ: જમણી બાજુ નીચે (750px x, 1350px y)
+      ctx.fillText(name, 1020, 1340);
+
+      // Show download
+      const downloadLink = document.getElementById("downloadLink");
+      downloadLink.href = canvas.toDataURL("image/png");
+      downloadLink.style.display = "inline-block";
+    }
+  </script>
+</body>
+</html>
